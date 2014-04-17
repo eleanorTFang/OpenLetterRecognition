@@ -8,7 +8,7 @@ namespace letterrecog
 {
     LetterIdentificationer::LetterIdentificationer(const cv::Mat& letterImage, const cv::Mat& sourceImage, const std::string& text, 
         const Rectangles& rects, const float& maxKeypoints)
-        : letterImage_(letterImage), sourceImage_(sourceImage), rects_(rects), maxKeypoints_(maxKeypoints)
+        : letterImage_(letterImage), sourceImage_(sourceImage), rects_(rects), maxKeypoints_(maxKeypoints), text_(text)
     {
         initModule_nonfree();
 
@@ -57,15 +57,14 @@ namespace letterrecog
             histgrams_[i] = histgram;
         }
 
-
         // Original identification without svm
-        similars_.resize(size);
-        for (unsigned int i = 1; i < (size + 1); ++i) {
+        similars_.resize(size + 1);
+        for (unsigned int i = 0; i < (size + 1); ++i) {
             double correl = 0.0f;
             if (histgrams_[0].type() == histgrams_[i].type() && histgrams_[0].type() == CV_32F) {
                 correl = compareHist(histgrams_[0], histgrams_[i], CV_COMP_CORREL);
             }
-            similars_[i - 1] = correl;
+            similars_[i] = correl;
         }
     }
 

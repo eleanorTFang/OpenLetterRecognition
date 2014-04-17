@@ -10,7 +10,7 @@ namespace letterrecog
     {
     public:
         LetterVoronoiSpecificer(const cv::Mat& targetImage, const Keypoints& keypoints, const float& thresholdDistance = 30.0f);
-        const cv::Mat& labelImage() { return labelImage_; }
+        const cv::Mat& labelImage() const { return labelImage_; }
         const cv::Mat drawEdges(const cv::Mat& image);
 
     private:
