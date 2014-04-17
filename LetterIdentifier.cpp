@@ -2,7 +2,7 @@
 #include <boost/format.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
-#include "LetterIdentificationer.h"
+#include "LetterIdentifier.h"
 
 using namespace cv;
 using namespace boost::filesystem;

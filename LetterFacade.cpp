@@ -6,7 +6,7 @@
 #include "LetterVoronoiSpecificer.h"
 #include "LetterLabelCreator.h"
 #include "LetterFineExclusioner.h"
-#include "LetterIdentificationer.h"
+#include "LetterIdentifier.h"
 
 using namespace cv;
 using namespace letterrecog;

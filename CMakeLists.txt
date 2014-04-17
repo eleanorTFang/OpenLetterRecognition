@@ -23,7 +23,7 @@ LetterFeatureExtractor.cpp
 LetterVoronoiSpecificer.cpp
 LetterLabelCreator.cpp
 LetterFineExclusioner.cpp
-LetterIdentificationer.cpp
+LetterIdentifier.cpp
 LetterFacade.cpp
 )
 
@@ -33,7 +33,7 @@ LetterFeatureExtractor.h
 LetterVoronoiSpecificer.h
 LetterLabelCreator.h
 LetterFineExclusioner.h
-LetterIdentificationer.h
+LetterIdentifier.h
 )
 
 INCLUDE(${QT_USE_FILE})
