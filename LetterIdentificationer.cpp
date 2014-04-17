@@ -1,8 +1,11 @@
+#include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/nonfree/nonfree.hpp>
 #include "LetterIdentificationer.h"
 
 using namespace cv;
+using namespace boost::filesystem;
 
 namespace letterrecog
 {
@@ -51,20 +54,37 @@ namespace letterrecog
 
         // Creating histgram
         histgrams_.resize(size + 1);
+        similars_.resize(size + 1);
         for (unsigned int i = 0; i < (size + 1); ++i) {
             Mat histgram;
             bowExtractor.compute(images[i], keys[i], histgram);
             histgrams_[i] = histgram;
         }
 
-        // Original identification without svm
-        similars_.resize(size + 1);
-        for (unsigned int i = 0; i < (size + 1); ++i) {
-            double correl = 0.0f;
-            if (histgrams_[0].type() == histgrams_[i].type() && histgrams_[0].type() == CV_32F) {
-                correl = compareHist(histgrams_[0], histgrams_[i], CV_COMP_CORREL);
+        const string xmlPath = (boost::format("../../model/%1%.xml") % text_).str();    
+        const path path(xmlPath.c_str());
+        boost::system::error_code error;
+        const bool result = exists(path, error);
+        if (result && !error) {
+            // Identification using svm
+            CvSVM svm;
+            svm.load(xmlPath.c_str());
+            for (unsigned int i = 0; i < (size + 1); ++i) {
+                double correl = -1.0f;
+                if (0 < histgrams_[i].rows) {
+                    correl = svm.predict(histgrams_[i]);
+                }
+                similars_[i] = correl;
+            } 
+        } else {
+            // Original identification without svm
+            for (unsigned int i = 0; i < (size + 1); ++i) {
+                double correl = 0.0f;
+                if (histgrams_[0].type() == histgrams_[i].type() && histgrams_[0].type() == CV_32F) {
+                    correl = compareHist(histgrams_[0], histgrams_[i], CV_COMP_CORREL);
+                }
+                similars_[i] = correl;
             }
-            similars_[i] = correl;
         }
     }
 
