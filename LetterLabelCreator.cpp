@@ -19,7 +19,7 @@ namespace letterrecog
         erode (filledImage, filledImage, Mat(), Point(-1, -1), 1);
         dilate(filledImage, filledImage, Mat(), Point(-1, -1), 1);
 #ifdef _CREATE_MIDDLE_IMAGE
-        imwrite("../../image/debug/middle-labeling.png", filledImage);
+        imwrite("image/debug/middle-labeling.png", filledImage);
 #endif
         findContours(filledImage, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
         for (int i = 0; i < contours.size(); i++) {

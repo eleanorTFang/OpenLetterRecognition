@@ -58,7 +58,7 @@ namespace {
         // Binarize the image
         adaptiveThreshold(origin, source, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 7, 8);
 #ifdef _CREATE_MIDDLE_IMAGE
-        imwrite("../../image/debug/middle-source.png", source);
+        imwrite("image/debug/middle-source.png", source);
 #endif
         if (r == 1) source =~ source;
         if (f == 1) {
@@ -92,7 +92,7 @@ namespace {
         cvSetMouseCallback("LetterImage", &on_mouse, &args);
         cv::imshow("LetterImage", resultImage);
 #ifdef _CREATE_MIDDLE_IMAGE
-        imwrite("../../image/debug/middle-result.png", source);
+        imwrite("image/debug/middle-result.png", source);
 #endif
 
         while (true) {
@@ -163,7 +163,7 @@ namespace {
                     CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
                     CvSVMParams param(CvSVM::C_SVC, CvSVM::RBF, 10.0, 8.0, 1.0, 10.0, 0.5, 0.1, NULL, criteria);
                     svm.train_auto(features, teach, Mat(), Mat(), param);
-                    svm.save((boost::format("../../model/%1%.xml") % ident->text()).str().c_str());
+                    svm.save((boost::format("./model/%1%.xml") % ident->text()).str().c_str());
                     drawInformationOfLabelToImage(rects, answer, *view);
                     imshow("LetterImage", *view);
                     break;

@@ -64,7 +64,7 @@ namespace letterrecog
         if (sourceImage_) {
             Mat result;
             drawKeypoints(*sourceImage_, keypoints_, result, CV_RGB(255, 255, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-            imwrite("../../image/debug/middle-keypoint.png", result);
+            imwrite("./image/debug/middle-keypoint.png", result);
         }
 #endif
     }

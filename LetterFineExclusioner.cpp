@@ -9,7 +9,7 @@ namespace letterrecog
         : labelImage_(labelImage), areaMax_(areaMax), resultImage_(cv::Mat(Size(labelImage.cols, labelImage.rows), CV_8UC1, Scalar::all(0)))
     {
 #ifdef _CREATE_MIDDLE_IMAGE
-        imwrite("../../image/debug/middle-label-source.png", labelImage);
+        imwrite("image/debug/middle-label-source.png", labelImage);
 #endif
         vector<vector<Point> > contours;
         vector<Vec4i> hierarchy;
@@ -23,7 +23,7 @@ namespace letterrecog
             }
         }
 #ifdef _CREATE_MIDDLE_IMAGE
-        imwrite("../../image/debug/middle-label-result.png", resultImage_);
+        imwrite("image/debug/middle-label-result.png", resultImage_);
 #endif
     }
 

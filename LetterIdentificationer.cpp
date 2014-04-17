@@ -61,7 +61,7 @@ namespace letterrecog
             histgrams_[i] = histgram;
         }
 
-        const string xmlPath = (boost::format("../../model/%1%.xml") % text_).str();    
+        const string xmlPath = (boost::format("./model/%1%.xml") % text_).str();    
         const path path(xmlPath.c_str());
         boost::system::error_code error;
         const bool result = exists(path, error);

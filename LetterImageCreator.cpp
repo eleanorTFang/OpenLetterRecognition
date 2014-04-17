@@ -23,7 +23,7 @@ namespace letterrecog
         addText(letterImage_, text.c_str(), Point(10, 30), whiteLetter_);
 
 #ifdef _CREATE_MIDDLE_IMAGE
-        imwrite("../../image/debug/middle-letter.png", letterImage_);
+        imwrite("image/debug/middle-letter.png", letterImage_);
 #endif
     }
    
