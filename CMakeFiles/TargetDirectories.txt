@@ -1,1 +1,0 @@
-/Users/ikari/Development/letter/src/recognition/CMakeFiles/LetterRecognition.dir
