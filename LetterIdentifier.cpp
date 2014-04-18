@@ -68,6 +68,9 @@ namespace letterrecog
         boost::system::error_code error;
         const bool result = exists(path, error);
         if (result && !error) {
+#ifdef _VERBOSE
+            std::cout << "svm model file is found on the " << xmlPath << std::endl;
+#endif
             // Identification using svm
             CvSVM svm;
             svm.load(xmlPath.c_str());

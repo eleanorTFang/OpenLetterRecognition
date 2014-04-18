@@ -171,13 +171,19 @@ namespace {
                     (rects[i].y <= y && y <= (rects[i].y + rects[i].height))) {
                     teach.at<float>(i + 1, 0) = answer[i + 1] = (event == CV_EVENT_LBUTTONDOWN ? 1.0f : -1.0f); // selected rectangle is correct.
                     ident->similar(i + 1, answer[i + 1]);
-                    std::cout << "new " << (event == CV_EVENT_LBUTTONDOWN ? "correct" : "invalid") << " answer is add:" << (i + 1) << std::endl;
+#ifdef _VERBOSE
+                    std::cout << "new " << (event == CV_EVENT_LBUTTONDOWN ? "correct" : "invalid") << " answer of " << (i + 1) << " is add" << std::endl;
+#endif
                     // Traning
                     CvSVM svm;
                     CvTermCriteria criteria = cvTermCriteria(CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
                     CvSVMParams param(CvSVM::C_SVC, CvSVM::RBF, 10.0, 8.0, 1.0, 10.0, 0.5, 0.1, NULL, criteria);
                     svm.train_auto(features, teach, Mat(), Mat(), param);
-                    svm.save((boost::format("./model/%1%.xml") % ident->text()).str().c_str());
+                    string saveFile = (boost::format("./model/%1%.xml") % ident->text()).str();
+#ifdef _VERBOSE
+                    std::cout << "svm model file is created on the " << saveFile << std::endl;
+#endif
+                    svm.save(saveFile.c_str());
                     drawInformationOfLabelToImage(rects, answer, *view);
                     imshow("LetterImage", *view);
                     break;
