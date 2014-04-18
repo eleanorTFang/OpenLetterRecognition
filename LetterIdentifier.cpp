@@ -9,9 +9,11 @@ using namespace boost::filesystem;
 
 namespace letterrecog
 {
-    LetterIdentificationer::LetterIdentificationer(const cv::Mat& letterImage, const cv::Mat& sourceImage, const std::string& text, 
-        const Rectangles& rects, const float& maxKeypoints)
-        : letterImage_(letterImage), sourceImage_(sourceImage), rects_(rects), maxKeypoints_(maxKeypoints), text_(text)
+    LetterIdentificationer::LetterIdentificationer(const cv::Mat& letterImage, const cv::Mat& sourceImage,
+        const std::string& text, const Rectangles& rects, const float& maxKeypoints)
+    
+        : letterImage_(letterImage), sourceImage_(sourceImage), rects_(rects),
+            maxKeypoints_(maxKeypoints), text_(text)
     {
         initModule_nonfree();
 

@@ -5,76 +5,83 @@
 #include "LetterFeatureExtractor.h"
 #include "LetterVoronoiSpecificer.h"
 #include "LetterLabelCreator.h"
-#include "LetterFineExclusioner.h"
+#include "LetterTrashCleaner.h"
 #include "LetterIdentifier.h"
+#include "LetterRecognizer.h"
 
 using namespace cv;
 using namespace letterrecog;
 
 namespace {
-    static const float thresholdCorrel = 0.3f;    
-};
-
-namespace {
-    void recogniteLetter(const int argc, const char** argv, const Mat* letterImage = NULL);
-    void drawInformationOfLabelToImage(const Rectangles& rects, const Values& similars, cv::Mat& view);
+    void drawInformationOfLabelToImage(const Rectangles& rects, const Values& similars, cv::Mat& view,
+        const float& thresholdCorrel = 0.3f);
+#ifdef _USING_WINDOW
     void on_mouse(int event, int x, int y, int flags, void* param);
-};
 
-namespace {
     struct EventArgs {
-        EventArgs(LetterIdentificationer* _ident, Mat* _view) {
-            ident = _ident;
-            view = _view;
-        }
+        EventArgs(const LetterArgs* _args, LetterIdentificationer* _ident, Mat* _view) 
+            : args(_args), ident(_ident), view(_view) {}
+        const LetterArgs* args;
         LetterIdentificationer* ident;
         Mat* view;
-    }; 
+    };
+#endif
 };
 
+#ifdef _ENABLE_INVOCATION
 int main(int argc, const char** argv)
 {
-    recogniteLetter(argc, argv);
+    LetterArgs args;
+    args.imageLetterText = argv[1];
+    args.imageTargetName = argv[2];
+    
+    args.enableReverse = boost::lexical_cast<unsigned int>(argv[3]);
+    args.enableCleaning = boost::lexical_cast<unsigned int>(argv[4]);
+    args.enableErode = boost::lexical_cast<unsigned int>(argv[5]);
+    args.enableDilate = boost::lexical_cast<unsigned int>(argv[6]);
+    
+    args.image.keypointMaxNum = boost::lexical_cast<unsigned int>(argv[7]);
+    args.image.keypointRatio = boost::lexical_cast<float>(argv[8]);
+    args.image.thresholdTrashDiameter = boost::lexical_cast<float>(argv[9]);
+    args.image.thresholdKeypointRadius = boost::lexical_cast<float>(argv[10]);
+    args.image.thresholdKeypointDistance = boost::lexical_cast<float>(argv[11]);
+    args.image.thresholdImageCorrel = boost::lexical_cast<float>(argv[12]);
+
+    recognizeLetter(args);
 	return 0;
-}
-
-
-namespace {
-    void recogniteLetter(const int argc, const char** argv, const Mat* letterImage)
-    {
-        const unsigned int r = boost::lexical_cast<unsigned int>(argv[3]);
-        const unsigned int e = boost::lexical_cast<unsigned int>(argv[4]);
-        const unsigned int d = boost::lexical_cast<unsigned int>(argv[5]);
-        const unsigned int m = boost::lexical_cast<unsigned int>(argv[6]);
-        const unsigned int f = boost::lexical_cast<unsigned int>(argv[7]);
-
-        // Creating letter image.
-        const string text(argv[2]);
-#ifdef _USING_QT4
-        LetterImageCreator image(text);
-        const Mat& target = image.letterImage();
-#else
-        const Mat target = *letterImage; 
+};
 #endif
 
-        Mat view = imread(argv[1], 1), source;
-        Mat origin = imread(argv[1], 0);
+namespace {
+    void recognizeLetter(const LetterArgs& args, const cv::Mat* letterImage)
+    {
+        // Creating letter image.
+#ifdef _USING_QT4
+        LetterImageCreator image(args.imageLetterText);
+        const Mat& target = image.letterImage();
+#else
+        if (!letterImage) return;
+        const Mat& target = *letterImage;
+#endif
+
+        Mat view = imread(args.imageTargetName, 1), source;
+        Mat origin = imread(args.imageTargetName, 0);
 
         // Binarize the image
         adaptiveThreshold(origin, source, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 7, 8);
 #ifdef _CREATE_MIDDLE_IMAGE
         imwrite("image/debug/middle-source.png", source);
 #endif
-        if (r == 1) source =~ source;
-        if (f == 1) {
-            LetterFineExclusioner exclusioner(source, 5);
-            source = exclusioner.labelImage();
+        if (args.enableReverse == 1) source =~ source;
+        if (args.enableCleaning == 1) {
+            LetterTrashCleaner cleaner(source, args.image.thresholdTrashDiameter);
+            source = cleaner.labelImage();
         }
-        if (e == 1) erode (source, source, Mat(), Point(-1, -1), 1);
-        if (d == 1) dilate(source, source, Mat(), Point(-1, -1), 1);
+        if (args.enableErode == 1) erode (source, source, Mat(), Point(-1, -1), 1);
+        if (args.enableDilate == 1) dilate(source, source, Mat(), Point(-1, -1), 1);
 
         // Getting the featues of image
-        LetterFeatureExtractor extractor(source, target, 1.2f, 5.0f, m, &view);
+        LetterFeatureExtractor extractor(source, target, 1.2f, 5.0f, args.image.keypointMaxNum, &view);
         const Keypoints& keypoints = extractor.keypoints();
 
         LetterVoronoiSpecificer voronoi(source, keypoints, 20.0f);
@@ -87,15 +94,15 @@ namespace {
         const Rectangles& rects = label.rectangles();
 
         // Identification of letter
-        LetterIdentificationer ident(target, source, text, rects, m);
+        LetterIdentificationer ident(target, source, args.imageLetterText, rects, args.image.keypointMaxNum);
         const Values& similars = ident.similars();
 
         // Drawing the rectangle of label
-        drawInformationOfLabelToImage(rects, similars, resultImage);
+        drawInformationOfLabelToImage(rects, similars, resultImage, args.image.thresholdImageCorrel);
 
 #ifdef _USING_WINDOW
-        EventArgs args(&ident, &resultImage);
-        cvSetMouseCallback("LetterImage", &on_mouse, &args);
+        EventArgs event(&args, &ident, &resultImage);
+        cvSetMouseCallback("LetterImage", &on_mouse, &event);
         cv::imshow("LetterImage", resultImage);
 #ifdef _CREATE_MIDDLE_IMAGE
         imwrite("image/debug/middle-result.png", source);
@@ -110,7 +117,7 @@ namespace {
     }
 
 
-    void drawInformationOfLabelToImage(const Rectangles& rects, const Values& similars, cv::Mat& view)
+    void drawInformationOfLabelToImage(const Rectangles& rects, const Values& similars, cv::Mat& view, const float& thresholdCorrel)
     {
         // Drawing the information of label
         for (int i = 0; i < rects.size(); ++i) {
@@ -126,13 +133,14 @@ namespace {
 #endif
     }
 
-
+#ifdef _USING_WINDOW
     void on_mouse(int event, int x, int y, int flags, void* param)
     {
         if (event == CV_EVENT_LBUTTONDOWN || event == CV_EVENT_RBUTTONDOWN) {
-            EventArgs* args = static_cast<EventArgs*>(param);
-            LetterIdentificationer* ident = static_cast<LetterIdentificationer*>(args->ident);
-            Mat* view = static_cast<Mat*>(args->view);
+            EventArgs* letter = static_cast<EventArgs*>(param);
+            const LetterArgs* args = static_cast<const LetterArgs*>(letter->args);
+            LetterIdentificationer* ident = static_cast<LetterIdentificationer*>(letter->ident);
+            Mat* view = static_cast<Mat*>(letter->view);
 
             // Getting features of rectangles.
             const Histgrams& histgrams = ident->histgrams();
@@ -150,7 +158,7 @@ namespace {
             Values answer(similars.size());
             for (unsigned int i = 0; i < rows; ++i) {
                 if (0 < histgrams[i].rows) {
-                    teach.at<float>(i, 0) = answer[i] = (thresholdCorrel < similars[i] ? 1.0f : 0.0f); 
+                    teach.at<float>(i, 0) = answer[i] = (args->image.thresholdImageCorrel < similars[i] ? 1.0f : 0.0f); 
                     for (unsigned int j = 0; j < cols; ++j) {
                         features.at<float>(i, j) = histgrams[i].at<float>(0, j);
                     }
@@ -177,7 +185,8 @@ namespace {
             }            
         }
     }
-
+#endif
+    
 }; // end of namespace
 
 

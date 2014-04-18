@@ -5,7 +5,9 @@ using namespace cv;
 
 namespace letterrecog 
 {
-    LetterVoronoiSpecificer::LetterVoronoiSpecificer(const cv::Mat& targetImage, const Keypoints& keypoints, const float& thresholdDistance) 
+    LetterVoronoiSpecificer::LetterVoronoiSpecificer(const cv::Mat& targetImage, const Keypoints& keypoints,
+        const float& thresholdDistance)
+    
         : targetImage_(targetImage), keypoints_(keypoints), thresholdDistance_(thresholdDistance)
     {
         std::vector<Point2f> vertices(keypoints_.size());

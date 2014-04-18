@@ -8,8 +8,8 @@ namespace letterrecog
     class LetterLabelCreator
     {
     public:
-        LetterLabelCreator(const cv::Mat& labelImage, const float& areaMin = 3000.0f, const float& areaMax = 10000.0f,
-            const float& circleMin = 0.2f, const float& circleMax = 0.6f);
+        LetterLabelCreator(const cv::Mat& labelImage, const float& areaMin = 3000.0f,
+            const float& areaMax = 10000.0f, const float& circleMin = 0.2f, const float& circleMax = 0.6f);
 
         const Rectangles& rectangles() const { return rects_; }
         const Values& circles() const { return circles_; }

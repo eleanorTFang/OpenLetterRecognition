@@ -7,9 +7,12 @@ using namespace cv;
 namespace letterrecog 
 {
     LetterFeatureExtractor::LetterFeatureExtractor(const cv::Mat& targetImage, const cv::Mat& letterImage, 
-        const float& thresholdRatio, const float& thresholdDistance, const float& maxKeypoints, cv::Mat* sourceImage) 
+        const float& thresholdRatio, const float& thresholdDistance,
+        const float& maxKeypoints, cv::Mat* sourceImage)
+    
         : targetImage_(targetImage), letterImage_(letterImage), 
-            thresholdRatio_(thresholdRatio), thresholdDistance_(thresholdDistance), maxKeypoints_(maxKeypoints), sourceImage_(sourceImage)
+            thresholdRatio_(thresholdRatio), thresholdDistance_(thresholdDistance),
+            maxKeypoints_(maxKeypoints), sourceImage_(sourceImage)
     {
         initModule_nonfree();
 

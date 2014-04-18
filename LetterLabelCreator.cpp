@@ -5,7 +5,8 @@ using namespace cv;
 
 namespace letterrecog 
 {
-    LetterLabelCreator::LetterLabelCreator(const cv::Mat& labelImage, const float& areaMin, const float& areaMax, const float& circleMin, const float& circleMax)
+    LetterLabelCreator::LetterLabelCreator(const cv::Mat& labelImage, const float& areaMin,
+        const float& areaMax, const float& circleMin, const float& circleMax)
         : areaMin_(areaMin), areaMax_(areaMax), circleMin_(circleMin), circleMax_(circleMax)
     {
         vector<vector<Point> > contours;
@@ -18,6 +19,7 @@ namespace letterrecog
         }
         erode (filledImage, filledImage, Mat(), Point(-1, -1), 1);
         dilate(filledImage, filledImage, Mat(), Point(-1, -1), 1);
+        
 #ifdef _CREATE_MIDDLE_IMAGE
         imwrite("image/debug/middle-labeling.png", filledImage);
 #endif
@@ -27,9 +29,7 @@ namespace letterrecog
             const double area = contourArea(figure);
             const double perimeter = arcLength(figure, true);
             const double circle = 4.0 * CV_PI * area / (perimeter * perimeter);
-
             const Rect rect = boundingRect(figure);
-            const double rectArea = rect.area();
 
             rects_.push_back(rect);
             areas_.push_back(area);
