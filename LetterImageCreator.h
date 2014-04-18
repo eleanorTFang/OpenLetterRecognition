@@ -1,3 +1,5 @@
+#ifdef _USING_QT4
+
 #include <string>
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -24,4 +26,7 @@ namespace letterrecog
     };
 
 }; // end of namespace
+
+#endif
+
 

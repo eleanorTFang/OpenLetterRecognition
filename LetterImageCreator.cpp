@@ -1,3 +1,5 @@
+#ifdef _USING_QT4
+
 #include <QTextCodec>
 #include <opencv2/opencv.hpp>
 #include "LetterImageCreator.h"
@@ -28,5 +30,7 @@ namespace letterrecog
     }
    
 }; // end of namespace
+
+#endif
 
 

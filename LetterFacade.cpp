@@ -16,7 +16,7 @@ namespace {
 };
 
 namespace {
-    void recogniteLetter(const int argc, const char** argv);
+    void recogniteLetter(const int argc, const char** argv, const Mat* letterImage = NULL);
     void drawInformationOfLabelToImage(const Rectangles& rects, const Values& similars, cv::Mat& view);
     void on_mouse(int event, int x, int y, int flags, void* param);
 };
@@ -40,7 +40,7 @@ int main(int argc, const char** argv)
 
 
 namespace {
-    void recogniteLetter(const int argc, const char** argv)
+    void recogniteLetter(const int argc, const char** argv, const Mat* letterImage)
     {
         const unsigned int r = boost::lexical_cast<unsigned int>(argv[3]);
         const unsigned int e = boost::lexical_cast<unsigned int>(argv[4]);
@@ -48,9 +48,14 @@ namespace {
         const unsigned int m = boost::lexical_cast<unsigned int>(argv[6]);
         const unsigned int f = boost::lexical_cast<unsigned int>(argv[7]);
 
+        // Creating letter image.
         const string text(argv[2]);
+#ifdef _USING_QT4
         LetterImageCreator image(text);
         const Mat& target = image.letterImage();
+#else
+        const Mat target = *letterImage; 
+#endif
 
         Mat view = imread(argv[1], 1), source;
         Mat origin = imread(argv[1], 0);
@@ -88,18 +93,19 @@ namespace {
         // Drawing the rectangle of label
         drawInformationOfLabelToImage(rects, similars, resultImage);
 
+#ifdef _USING_WINDOW
         EventArgs args(&ident, &resultImage);
         cvSetMouseCallback("LetterImage", &on_mouse, &args);
         cv::imshow("LetterImage", resultImage);
 #ifdef _CREATE_MIDDLE_IMAGE
         imwrite("image/debug/middle-result.png", source);
 #endif
-
         while (true) {
             int key = cv::waitKey(0);
             if (key == 27) break;
         }
         destroyAllWindows();
+#endif
 
     }
 
@@ -107,23 +113,23 @@ namespace {
     void drawInformationOfLabelToImage(const Rectangles& rects, const Values& similars, cv::Mat& view)
     {
         // Drawing the information of label
-        const CvFont blue  = fontQt(FONT_NAME, 12, Scalar(  0,   0, 128), CV_FONT_BOLD, CV_STYLE_NORMAL, 0);
-        const CvFont green = fontQt(FONT_NAME, 12, Scalar(  0, 255, 255), CV_FONT_BOLD, CV_STYLE_NORMAL, 0);
         for (int i = 0; i < rects.size(); ++i) {
             cv::rectangle(view, rects[i].tl(), rects[i].br(), (similars[i + 1] > thresholdCorrel ? CV_RGB(0, 255, 255) : CV_RGB(0, 0, 128)), 2, CV_AA);
         }
+#ifdef _USING_QT4
+        const CvFont blue  = fontQt(FONT_NAME, 12, Scalar(  0,   0, 128), CV_FONT_BOLD, CV_STYLE_NORMAL, 0);
+        const CvFont green = fontQt(FONT_NAME, 12, Scalar(  0, 255, 255), CV_FONT_BOLD, CV_STYLE_NORMAL, 0);
         for (int i = 0; i < rects.size(); ++i) {
             addText(view, (boost::format("%1%") % similars[i + 1]).str(), 
                 Point(rects[i].tl().x, rects[i].tl().y - 5), (similars[i + 1] > thresholdCorrel ? green : blue));
         }
+#endif
     }
 
 
     void on_mouse(int event, int x, int y, int flags, void* param)
     {
         if (event == CV_EVENT_LBUTTONDOWN || event == CV_EVENT_RBUTTONDOWN) {
-            std::cout << "@ Left mouse button pressed at: " << x << "," << y << std::endl;
-
             EventArgs* args = static_cast<EventArgs*>(param);
             LetterIdentificationer* ident = static_cast<LetterIdentificationer*>(args->ident);
             Mat* view = static_cast<Mat*>(args->view);
